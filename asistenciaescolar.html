@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema Escolar con Asistencia por QR</title>
+  <style>
+    :root {
+      --bg: #03111f;
+      --card: #0d1b2a;
+      --accent: #38bdf8;
+      --accent2: #22c55e;
+      --text: #e5eef8;
+      --muted: #9fb0c3;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(140deg, #03111f, #071a2e 55%, #03111f);
+      color: var(--text);
+    }
+
+    header {
+      padding: 3rem 1.5rem 2rem;
+      max-width: 1100px;
+      margin: auto;
+      animation: fadeDown 1s ease;
+    }
+
+    header h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      margin-bottom: .5rem;
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: 1.08rem;
+      max-width: 860px;
+      line-height: 1.7;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: auto;
+      padding: 0 1.5rem 4rem;
+    }
+
+    section {
+      margin-top: 3rem;
+      animation: fadeUp 1s ease forwards;
+    }
+
+    h2 {
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    .card {
+      background: linear-gradient(180deg, var(--card), #071220);
+      border-radius: 1.5rem;
+      padding: 1.8rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,.35);
+      border: 1px solid rgba(159,176,195,.12);
+    }
+
+    .card p, .card li, .card span {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    ul {
+      padding-left: 1.2rem;
+      margin: 0;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .img-card {
+      background: #071220;
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 15px 30px rgba(0,0,0,.35);
+      transform: translateY(20px);
+      opacity: 0;
+      animation: fadeUp .8s ease forwards;
+      border: 1px solid rgba(159,176,195,.12);
+    }
+
+    .mock {
+      height: 190px;
+      padding: 1rem;
+      background: linear-gradient(180deg, #0b1626, #0f2237);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: .7rem;
+    }
+
+    .qr {
+      width: 76px;
+      height: 76px;
+      border-radius: .8rem;
+      background:
+        linear-gradient(90deg, #e2e8f0 9px, transparent 9px) 0 0/19px 19px,
+        linear-gradient(#e2e8f0 9px, transparent 9px) 0 0/19px 19px,
+        #0b1220;
+      border: 2px solid rgba(255,255,255,.14);
+    }
+
+    .line {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(159,176,195,.22);
+    }
+
+    .line.s1 { width: 85%; }
+    .line.s2 { width: 60%; }
+    .line.s3 { width: 72%; }
+    .line.s4 { width: 90%; }
+
+    .img-card span {
+      display: block;
+      padding: .9rem 1rem;
+      font-size: .92rem;
+      background: #071220;
+    }
+
+    .links {
+      margin-top: 1.5rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .links a {
+      color: var(--accent2);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .stack {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .mini {
+      padding: 1rem;
+      border-radius: 1rem;
+      background: rgba(56,189,248,.06);
+      border: 1px solid rgba(56,189,248,.12);
+    }
+
+    .mini strong {
+      display: block;
+      margin-bottom: .45rem;
+      color: var(--text);
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    @keyframes fadeUp {
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes fadeDown {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Sistema Escolar con Asistencia por QR</h1>
+  <p>
+    Plataforma web orientada al control de asistencia estudiantil mediante escaneo de códigos QR,
+    diseñada para instituciones educativas que buscan agilizar el pase de lista, centralizar reportes
+    y mantener un registro seguro en la nube. La propuesta considera despliegue en Vercel,
+    backend con Supabase, base de datos PostgreSQL y versionado del proyecto en GitHub.
+  </p>
+</header>
+
+<main>
+
+  <section>
+    <h2>Descripción del Proyecto</h2>
+    <div class="card">
+      <p>
+        Este sistema fue planteado como una solución digital para reemplazar el registro manual de asistencia
+        dentro del entorno escolar. Cada estudiante dispone de un identificador QR único vinculado a su matrícula,
+        permitiendo registrar entradas por curso, fecha y horario desde una interfaz web rápida e intuitiva.
+      </p>
+      <p>
+        El enfoque principal está en la automatización del control diario, la reducción de errores por duplicidad,
+        la consulta de historiales en tiempo real y la administración centralizada de alumnos, docentes y secciones.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Funcionalidades Consideradas</h2>
+    <div class="card">
+      <ul>
+        <li>Registro de asistencia mediante escaneo de QR por estudiante</li>
+        <li>Validación de alumno activo antes de registrar la marcación</li>
+        <li>Control para evitar asistencias duplicadas en la misma fecha y curso</li>
+        <li>Gestión de alumnos, grados, secciones y docentes</li>
+        <li>Consulta de reportes diarios, semanales y por rango de fechas</li>
+        <li>Panel administrativo con historial de asistencias</li>
+        <li>Despliegue web continuo con integración entre GitHub y Vercel</li>
+        <li>Persistencia de datos en PostgreSQL administrado desde Supabase</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Vista General del Sistema</h2>
+    <div class="gallery">
+      <div class="img-card">
+        <div class="mock">
+          <div class="qr"></div>
+          <div class="line s1"></div>
+          <div class="line s2"></div>
+          <div class="line s3"></div>
+        </div>
+        <span>Escaneo del código QR del estudiante para registrar su asistencia.</span>
+      </div>
+
+      <div class="img-card">
+        <div class="mock">
+          <div class="line s4"></div>
+          <div class="line s2"></div>
+          <div class="line s1"></div>
+          <div class="line s3"></div>
+        </div>
+        <span>Panel de control con estado de asistencia y validación de duplicados.</span>
+      </div>
+
+      <div class="img-card">
+        <div class="mock">
+          <div class="line s2"></div>
+          <div class="line s4"></div>
+          <div class="line s3"></div>
+          <div class="line s1"></div>
+        </div>
+        <span>Consulta de reportes por curso, fecha, grado y sección.</span>
+      </div>
+
+      <div class="img-card">
+        <div class="mock">
+          <div class="line s3"></div>
+          <div class="line s1"></div>
+          <div class="line s2"></div>
+          <div class="line s4"></div>
+        </div>
+        <span>Administración centralizada usando Supabase, PostgreSQL, GitHub y Vercel.</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Arquitectura Tecnológica</h2>
+    <div class="card">
+      <div class="stack">
+        <div class="mini">
+          <strong>Frontend</strong>
+          Interfaz web desarrollada con Next.js para acceso desde escritorio, tablet o móvil.
+        </div>
+        <div class="mini">
+          <strong>Backend</strong>
+          Supabase para autenticación, consultas seguras y lógica conectada con la base de datos.
+        </div>
+        <div class="mini">
+          <strong>Base de datos</strong>
+          PostgreSQL para almacenar estudiantes, cursos, horarios y asistencias.
+        </div>
+        <div class="mini">
+          <strong>DevOps</strong>
+          GitHub como repositorio del código y Vercel para despliegue automático.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Tecnologías Utilizadas</h2>
+    <div class="card">
+      <ul>
+        <li>Next.js</li>
+        <li>TypeScript</li>
+        <li>Supabase</li>
+        <li>PostgreSQL</li>
+        <li>Vercel</li>
+        <li>GitHub</li>
+        <li>HTML5 / CSS3</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Código y Funcionamiento</h2>
+    <div class="card">
+      <p>
+        Aquí puede integrarse una segunda vista con fragmentos representativos del proyecto,
+        incluyendo el registro de asistencia por QR, consultas a Supabase, validaciones de duplicidad
+        y lectura de reportes desde PostgreSQL.
+      </p>
+      <div class="links">
+        <a href="codigoescolar.html">Ver arquitectura y código base</a>
+        <a href="#">Ver flujo de asistencia y reportes</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  © 2026 – Documentación de proyecto | Portafolio técnico
+</footer>
+
+</body>
+</html>
