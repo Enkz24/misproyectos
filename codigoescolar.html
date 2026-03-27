@@ -1,1 +1,562 @@
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema Escolar QR | Arquitectura y Código</title>
+  <style>
+    :root {
+      --bg: #06121f;
+      --panel: #0c1b2a;
+      --panel-2: #102338;
+      --accent: #22c55e;
+      --accent-2: #38bdf8;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --code: #020617;
+      --border: rgba(148, 163, 184, 0.18);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(56,189,248,0.12), transparent 28%),
+        radial-gradient(circle at top right, rgba(34,197,94,0.12), transparent 24%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    .wrapper {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 1.25rem 4rem;
+    }
+
+    header {
+      padding: 3.5rem 0 2rem;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .85rem;
+      color: var(--accent-2);
+      background: rgba(56, 189, 248, .08);
+      border: 1px solid rgba(56, 189, 248, .18);
+      padding: .45rem .8rem;
+      border-radius: 999px;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.35rem);
+      line-height: 1.1;
+      margin: 1rem 0 .8rem;
+    }
+
+    .subtitle {
+      max-width: 920px;
+      color: var(--muted);
+      font-size: 1.02rem;
+      line-height: 1.7;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 1.4rem;
+      margin-top: 2rem;
+    }
+
+    .hero-card,
+    .card,
+    .code-card,
+    .info-card {
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      border: 1px solid var(--border);
+      border-radius: 1.35rem;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, .32);
+    }
+
+    .hero-card {
+      padding: 1.4rem;
+    }
+
+    .hero-card h3,
+    .info-card h3,
+    .stack h3,
+    section h2 {
+      margin-top: 0;
+    }
+
+    .hero-card p,
+    .info-card p,
+    .stack li,
+    .mini,
+    .muted {
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .stack {
+      padding: 1.4rem;
+    }
+
+    .stack ul {
+      padding-left: 1.2rem;
+      margin: .8rem 0 0;
+    }
+
+    section {
+      margin-top: 2.7rem;
+    }
+
+    section h2 {
+      font-size: 1.5rem;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .block {
+      display: grid;
+      grid-template-columns: 1.08fr .92fr;
+      gap: 1.4rem;
+      margin-top: 1rem;
+    }
+
+    .code-card,
+    .info-card {
+      padding: 1.35rem;
+    }
+
+    .code-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: .9rem;
+    }
+
+    .badge {
+      font-size: .78rem;
+      color: #dbeafe;
+      background: rgba(59, 130, 246, .18);
+      border: 1px solid rgba(59, 130, 246, .28);
+      padding: .35rem .65rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    pre {
+      margin: 0;
+      background: var(--code);
+      border-radius: 1rem;
+      padding: 1rem;
+      overflow-x: auto;
+      border: 1px solid rgba(148, 163, 184, .12);
+      font-size: .86rem;
+      line-height: 1.55;
+    }
+
+    code {
+      font-family: "Fira Code", "Cascadia Code", Consolas, monospace;
+      color: #dbeafe;
+    }
+
+    .preview {
+      margin-top: 1rem;
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: rgba(2, 6, 23, .75);
+      padding: 1rem;
+    }
+
+    .phone {
+      width: 100%;
+      min-height: 210px;
+      border-radius: 1rem;
+      background: linear-gradient(180deg, #0b1220, #111827);
+      border: 1px solid rgba(148, 163, 184, .15);
+      padding: 1rem;
+    }
+
+    .qr-box {
+      width: 88px;
+      height: 88px;
+      border-radius: .8rem;
+      background:
+        linear-gradient(90deg, #e2e8f0 10px, transparent 10px) 0 0/22px 22px,
+        linear-gradient(#e2e8f0 10px, transparent 10px) 0 0/22px 22px,
+        #111827;
+      border: 2px solid rgba(255,255,255,.12);
+      margin-bottom: 1rem;
+    }
+
+    .row {
+      display: flex;
+      gap: .8rem;
+      align-items: center;
+      margin-bottom: .8rem;
+    }
+
+    .pill {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, .25);
+      margin-bottom: .55rem;
+    }
+
+    .pill.w1 { width: 75%; }
+    .pill.w2 { width: 52%; }
+    .pill.w3 { width: 88%; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .card {
+      padding: 1rem;
+    }
+
+    .step {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, .15);
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: .8rem;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 2.5rem 0 .5rem;
+      font-size: .92rem;
+    }
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .block,
+      .flow {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <header>
+      <div class="eyebrow">Proyecto académico · Control de asistencia por QR</div>
+      <h1>Sistema Escolar de Asistencia con QR <span style="color: var(--accent-2);">| Arquitectura + Código Base</span></h1>
+      <p class="subtitle">
+        Propuesta visual y técnica de un sistema escolar donde cada estudiante registra su asistencia
+        mediante un código QR único. La solución considera frontend desplegado en Vercel, autenticación
+        y API con Supabase, repositorio del código en GitHub y persistencia en PostgreSQL para cursos,
+        alumnos, horarios y registros de entrada.
+      </p>
+
+      <div class="hero-grid">
+        <div class="hero-card">
+          <h3>Objetivo del sistema</h3>
+          <p>
+            Digitalizar el pase de lista para reducir errores manuales, acelerar el registro en aula y
+            permitir trazabilidad en tiempo real. Cada alumno cuenta con un QR asociado a su matrícula,
+            y el docente o personal autorizado puede escanearlo desde una interfaz web responsiva.
+          </p>
+          <p class="mini">
+            Stack sugerido: <strong>Next.js</strong> para la app, <strong>Supabase</strong> para auth y servicios backend,
+            <strong>PostgreSQL</strong> como base de datos principal, <strong>Vercel</strong> para despliegue continuo y
+            <strong>GitHub</strong> para versionado, issues y control del código fuente.
+          </p>
+        </div>
+
+        <div class="hero-card stack">
+          <h3>Componentes principales</h3>
+          <ul>
+            <li>Panel de administración para alumnos, docentes, grados y secciones.</li>
+            <li>Generación de QR por estudiante con vínculo a matrícula y estado activo.</li>
+            <li>Registro de asistencia por horario, curso, fecha y tipo de marcación.</li>
+            <li>Reportes por aula, estudiante y rango de fechas.</li>
+            <li>Historial auditable alojado en PostgreSQL mediante Supabase.</li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <section>
+      <h2>Modelo de datos en PostgreSQL</h2>
+      <div class="block">
+        <div class="code-card">
+          <div class="code-head">
+            <strong>Esquema base para Supabase</strong>
+            <span class="badge">SQL / PostgreSQL</span>
+          </div>
+<pre><code>create table students (
+  id uuid primary key default gen_random_uuid(),
+  code varchar(20) unique not null,
+  full_name text not null,
+  grade text not null,
+  section text not null,
+  qr_token text unique not null,
+  is_active boolean default true,
+  created_at timestamptz default now()
+);
+
+create table courses (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  teacher_name text not null,
+  weekday int not null,
+  start_time time not null,
+  end_time time not null,
+  created_at timestamptz default now()
+);
+
+create table attendance (
+  id uuid primary key default gen_random_uuid(),
+  student_id uuid not null references students(id) on delete cascade,
+  course_id uuid not null references courses(id) on delete cascade,
+  attendance_date date not null,
+  check_in_time timestamptz default now(),
+  status varchar(20) not null default 'presente',
+  registered_by text,
+  created_at timestamptz default now()
+);
+
+create unique index uq_attendance_once
+on attendance(student_id, course_id, attendance_date);</code></pre>
+        </div>
+
+        <div class="info-card">
+          <h3>Qué resuelve esta estructura</h3>
+          <p>
+            La base separa estudiantes, cursos y asistencias para facilitar consultas, reportes y control de
+            duplicados. El índice único evita que un alumno sea marcado dos veces en el mismo curso y fecha.
+          </p>
+          <div class="preview">
+            <div class="phone">
+              <div class="row">
+                <div class="qr-box"></div>
+                <div style="flex:1;">
+                  <div class="pill w1"></div>
+                  <div class="pill w2"></div>
+                  <div class="pill w3"></div>
+                </div>
+              </div>
+              <div class="pill w3"></div>
+              <div class="pill w1"></div>
+              <div class="pill w2"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Registro de asistencia mediante escaneo QR</h2>
+      <div class="block">
+        <div class="code-card">
+          <div class="code-head">
+            <strong>Endpoint para marcar asistencia</strong>
+            <span class="badge">Next.js + Supabase</span>
+          </div>
+<pre><code>import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+export async function registerAttendance(qrToken: string, courseId: string) {
+  const today = new Date().toISOString().slice(0, 10);
+
+  const { data: student, error: studentError } = await supabase
+    .from('students')
+    .select('id, full_name, is_active')
+    .eq('qr_token', qrToken)
+    .single();
+
+  if (studentError || !student || !student.is_active) {
+    throw new Error('Alumno no válido o inactivo');
+  }
+
+  const { data: existing } = await supabase
+    .from('attendance')
+    .select('id')
+    .eq('student_id', student.id)
+    .eq('course_id', courseId)
+    .eq('attendance_date', today)
+    .maybeSingle();
+
+  if (existing) {
+    return { ok: false, message: 'La asistencia ya fue registrada hoy' };
+  }
+
+  const { error: insertError } = await supabase
+    .from('attendance')
+    .insert({
+      student_id: student.id,
+      course_id: courseId,
+      attendance_date: today,
+      status: 'presente',
+      registered_by: 'scanner-web'
+    });
+
+  if (insertError) throw insertError;
+
+  return { ok: true, message: `Asistencia registrada para ${student.full_name}` };
+}</code></pre>
+        </div>
+
+        <div class="info-card">
+          <h3>Lógica funcional</h3>
+          <p>
+            Al escanear el QR, el sistema identifica al estudiante, valida que esté activo y comprueba si ya
+            existe una asistencia para ese curso en la fecha actual. Si todo es correcto, guarda el registro.
+          </p>
+          <p>
+            Esta lógica puede ejecutarse desde una API Route o Server Action en Next.js, manteniendo segura
+            la llave de servicio de Supabase en variables de entorno desplegadas en Vercel.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Consulta de reportes y panel administrativo</h2>
+      <div class="block">
+        <div class="code-card">
+          <div class="code-head">
+            <strong>Reporte diario por curso</strong>
+            <span class="badge">Supabase Query</span>
+          </div>
+<pre><code>export async function getDailyAttendance(courseId: string, date: string) {
+  const { data, error } = await supabase
+    .from('attendance')
+    .select(`
+      id,
+      attendance_date,
+      status,
+      check_in_time,
+      students (
+        full_name,
+        code,
+        grade,
+        section
+      )
+    `)
+    .eq('course_id', courseId)
+    .eq('attendance_date', date)
+    .order('check_in_time', { ascending: true });
+
+  if (error) throw error;
+  return data;
+}</code></pre>
+        </div>
+
+        <div class="info-card">
+          <h3>Utilidad del módulo</h3>
+          <p>
+            El panel administrativo permite revisar la asistencia del día, detectar tardanzas y exportar
+            información para coordinación o secretaría. También se puede filtrar por grado, sección y docente.
+          </p>
+          <p>
+            Con Supabase es posible complementar esto con Row Level Security para que cada perfil vea solo
+            la información que le corresponde dentro del sistema escolar.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Despliegue y flujo de trabajo con GitHub + Vercel</h2>
+      <div class="flow">
+        <div class="card">
+          <div class="step">1</div>
+          <strong>Repositorio en GitHub</strong>
+          <p class="muted">
+            El proyecto se versiona por ramas, permitiendo trabajo colaborativo, revisión de cambios y control del historial.
+          </p>
+        </div>
+        <div class="card">
+          <div class="step">2</div>
+          <strong>Integración continua</strong>
+          <p class="muted">
+            Cada push a la rama principal puede disparar un despliegue automático en Vercel para pruebas o producción.
+          </p>
+        </div>
+        <div class="card">
+          <div class="step">3</div>
+          <strong>Variables seguras</strong>
+          <p class="muted">
+            Las credenciales de Supabase y la configuración del entorno se guardan en Vercel, sin exponer datos sensibles en el código.
+          </p>
+        </div>
+        <div class="card">
+          <div class="step">4</div>
+          <strong>Base de datos en PostgreSQL</strong>
+          <p class="muted">
+            Supabase administra la base PostgreSQL y permite escalar consultas, autenticación y reglas de acceso desde un solo lugar.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Estructura sugerida del proyecto</h2>
+      <div class="block">
+        <div class="code-card">
+          <div class="code-head">
+            <strong>Organización del repositorio</strong>
+            <span class="badge">GitHub / Next.js</span>
+          </div>
+<pre><code>school-qr-system/
+├── app/
+│   ├── admin/
+│   ├── scanner/
+│   ├── reports/
+│   └── api/
+├── components/
+│   ├── qr-reader.tsx
+│   ├── attendance-table.tsx
+│   └── dashboard-cards.tsx
+├── lib/
+│   ├── supabase.ts
+│   └── attendance-service.ts
+├── supabase/
+│   ├── migrations/
+│   └── seed.sql
+├── public/
+├── .env.local
+├── package.json
+└── README.md</code></pre>
+        </div>
+
+        <div class="info-card">
+          <h3>Ventaja de esta organización</h3>
+          <p>
+            Facilita el mantenimiento del código y separa claramente vistas, componentes reutilizables,
+            servicios de negocio y scripts de base de datos. Esto vuelve más ordenado el trabajo en GitHub
+            y simplifica el despliegue continuo en Vercel.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      © 2026 · Demo conceptual · Sistema Escolar de Asistencia por QR con Supabase, Vercel, GitHub y PostgreSQL
+    </footer>
+  </div>
+</body>
+</html>
