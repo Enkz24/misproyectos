@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carrito Arduino 2WD | Arquitectura y Código</title>
+  <style>
+    :root {
+      --bg: #06121f;
+      --panel: #0c1b2a;
+      --panel-2: #102338;
+      --accent: #22c55e; /* You could change this to yellow/red for the car theme, but keeping original for structure parity */
+      --accent-2: #38bdf8;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --code: #020617;
+      --border: rgba(148, 163, 184, 0.18);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(56,189,248,0.12), transparent 28%),
+        radial-gradient(circle at top right, rgba(34,197,94,0.12), transparent 24%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    .wrapper {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 1.25rem 4rem;
+    }
+
+    header {
+      padding: 3.5rem 0 2rem;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .85rem;
+      color: var(--accent-2);
+      background: rgba(56, 189, 248, .08);
+      border: 1px solid rgba(56, 189, 248, .18);
+      padding: .45rem .8rem;
+      border-radius: 999px;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.35rem);
+      line-height: 1.1;
+      margin: 1rem 0 .8rem;
+    }
+
+    .subtitle {
+      max-width: 920px;
+      color: var(--muted);
+      font-size: 1.02rem;
+      line-height: 1.7;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 1.4rem;
+      margin-top: 2rem;
+    }
+
+    .hero-card,
+    .card,
+    .code-card,
+    .info-card {
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      border: 1px solid var(--border);
+      border-radius: 1.35rem;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, .32);
+    }
+
+    .hero-card {
+      padding: 1.4rem;
+    }
+
+    .hero-card h3,
+    .info-card h3,
+    .stack h3,
+    section h2 {
+      margin-top: 0;
+    }
+
+    .hero-card p,
+    .info-card p,
+    .stack li,
+    .mini,
+    .muted {
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .stack {
+      padding: 1.4rem;
+    }
+
+    .stack ul {
+      padding-left: 1.2rem;
+      margin: .8rem 0 0;
+    }
+
+    section {
+      margin-top: 2.7rem;
+    }
+
+    section h2 {
+      font-size: 1.5rem;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .block {
+      display: grid;
+      grid-template-columns: 1.08fr .92fr;
+      gap: 1.4rem;
+      margin-top: 1rem;
+    }
+
+    .code-card,
+    .info-card {
+      padding: 1.35rem;
+    }
+
+    .code-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: .9rem;
+    }
+
+    .badge {
+      font-size: .78rem;
+      color: #dbeafe;
+      background: rgba(59, 130, 246, .18);
+      border: 1px solid rgba(59, 130, 246, .28);
+      padding: .35rem .65rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    pre {
+      margin: 0;
+      background: var(--code);
+      border-radius: 1rem;
+      padding: 1rem;
+      overflow-x: auto;
+      border: 1px solid rgba(148, 163, 184, .12);
+      font-size: .86rem;
+      line-height: 1.55;
+    }
+
+    code {
+      font-family: "Fira Code", "Cascadia Code", Consolas, monospace;
+      color: #dbeafe;
+    }
+
+    .preview {
+      margin-top: 1rem;
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: rgba(2, 6, 23, .75);
+      padding: 1rem;
+    }
+
+    .robot-schematic {
+      width: 100%;
+      min-height: 210px;
+      border-radius: 1rem;
+      background: linear-gradient(180deg, #0b1220, #111827);
+      border: 1px solid rgba(148, 163, 184, .15);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .sensor-eyes {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .eye {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #1e293b;
+      border: 4px solid #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .eye-inner {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #0f172a;
+    }
+
+    .chassis {
+      width: 120px;
+      height: 80px;
+      background: rgba(250, 204, 21, 0.2); /* Yellowish tint for the acrylic */
+      border: 2px dashed rgba(250, 204, 21, 0.5);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5px;
+    }
+
+    .wheel {
+      width: 20px;
+      height: 60px;
+      background: #111827;
+      border: 2px solid #334155;
+      border-radius: 4px;
+    }
+
+    .row {
+      display: flex;
+      gap: .8rem;
+      align-items: center;
+      margin-bottom: .8rem;
+    }
+
+    .pill {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, .25);
+      margin-bottom: .55rem;
+    }
+
+    .pill.w1 { width: 75%; }
+    .pill.w2 { width: 52%; }
+    .pill.w3 { width: 88%; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .card {
+      padding: 1rem;
+    }
+
+    .step {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, .15);
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: .8rem;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 2.5rem 0 .5rem;
+      font-size: .92rem;
+    }
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .block,
+      .flow {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <header>
+      <div class="eyebrow">Proyecto de robótica · Carrito Autónomo 2WD</div>
+      <h1>Robot Carrito Arduino <span style="color: var(--accent-2);">| Arquitectura + Código Base</span></h1>
+      <p class="subtitle">
+        Propuesta técnica y de código para un robot móvil autónomo. Construido sobre un chasis de dos motores (2WD),
+        utiliza un sensor ultrasónico para evitar obstáculos y un sistema de luces LED que reacciona a los eventos 
+        de navegación (avance, detección y maniobra evasiva).
+      </p>
+
+      <div class="hero-grid">
+        <div class="hero-card">
+          <h3>Objetivo del sistema</h3>
+          <p>
+            Crear un vehículo capaz de navegar por su entorno sin intervención humana. El "cerebro" lee
+            constantemente la distancia frente a él. Si el camino está libre, avanza encendiendo sus luces de marcha.
+            Si detecta un obstáculo, se detiene, activa alertas visuales rojas y utiliza un servo para decidir su ruta de escape.
+          </p>
+          <p class="mini">
+            Hardware clave: <strong>Arduino Nano/Uno</strong> como controlador, <strong>HC-SR04</strong> como sensor principal,
+            <strong>L298N</strong> para la gestión de potencia a los motores y <strong>Micro Servo SG90</strong> para visión periférica.
+          </p>
+        </div>
+
+        <div class="hero-card stack">
+          <h3>Componentes y Conexiones</h3>
+          <ul>
+            <li>Chasis acrílico con 2 motores DC (tracción diferencial).</li>
+            <li>Driver L298N conectado a pines PWM para control de velocidad.</li>
+            <li>Sensor Ultrasónico HC-SR04 montado sobre el servo SG90.</li>
+            <li>LEDs indicadores (Rojo = Peligro/Detenido, Blanco/Azul = Avanzando).</li>
+            <li>Batería independiente para motores y Arduino.</li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <section>
+      <h2>Configuración de Pines y Hardware</h2>
+      <div class="block">
+        <div class="code-card">
+          <div class="code-head">
+            <strong>Definición de conexiones</strong>
+            <span class="badge">C++ / Arduino IDE</span>
+          </div>
+<pre><code>#include &lt;Servo.h&gt;
+
+// Sensor Ultrasónico
+#define TRIG_PIN 9
+#define ECHO_PIN 10
+
+// Luces LED
+#define LED_AVANCE 4
+#define LED_ALERTA 5
+
+// Motores (Driver L298N)
+#define IN1 6  // Motor Izquierdo Adelante
+#define IN2 7  // Motor Izquierdo Atrás
+#define IN3 8  // Motor Derecho Adelante
+#define IN4 11 // Motor Derecho Atrás
+
+Servo servoMotor;
+
+void setup() {
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+  pinMode(LED_AVANCE, OUTPUT);
+  pinMode(LED_ALERTA, OUTPUT);
+  
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+  
+  servoMotor.attach(3);
+  servoMotor.write(90); // Mirar al frente
+  Serial.begin(9600);
+}</code></pre>
+        </div>
+
+        <div class="info-card">
+          <h3>Estructura del Hardware</h3>
+          <p>
+            El bloque de configuración establece qué pines del Arduino actuarán como salidas (motores, LEDs, Trig del sensor) 
+            y cuáles como entradas (Echo del sensor). El objeto <code>Servo</code> se inicializa a 90 grados para mirar hacia adelante.
+          </p>
+          <div class="preview">
+            <div class="robot-schematic">
+              <div class="sensor-eyes">
+                <div class="eye"><div class="eye-inner"></div></div>
+                <div class="eye"><div class="eye-inner"></div></div>
+              </div>
+              <div class="chassis">
+                <div class="wheel"></div>
+                <div style="flex:1; padding: 0 10px;">
+                  <div class="pill w1"></div>
+                  <div class="pill w3"></div>
+                  <div class="pill w2" style="background: rgba(220, 38, 38, 0.5);"></div>
+                </div>
+                <div class="wheel"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Lógica de Detección y Luces</h2>
+      <div class="block">
+        <div class="code-card">
+          <div class="code-head">
+            <strong>Bucle principal (Loop)</strong>
+            <span class="badge">Control Autónomo</span>
+          </div>
+<pre><code>void loop() {
+  long distancia = medirDistancia();
+  
+  // Umbral de peligro: 20 cm
+  if (distancia > 0 && distancia < 20) {
+    // Modo Alerta
+    digitalWrite(LED_AVANCE, LOW);
+    digitalWrite(LED_ALERTA, HIGH);
+    detenerMotores();
+    delay(500);
+    
+    // Evadir obstáculo
+    retrocederUnPoco();
+    buscarRutaLibre(); 
+  } else {
+    // Modo Seguro
+    digitalWrite(LED_ALERTA, LOW);
+    digitalWrite(LED_AVANCE, HIGH);
+    avanzar();
+  }
+  delay(100);
+}
+
+long medirDistancia() {
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+  long duracion = pulseIn(ECHO_PIN, HIGH);
+  return duracion * 0.034 / 2; // Convertir a cm
+}</code></pre>
+        </div>
+
+        <div class="info-card">
+          <h3>Toma de Decisiones</h3>
+          <p>
+            El robot opera en un bucle infinito donde la función <code>medirDistancia()</code> lanza un pulso de sonido 
+            y calcula el tiempo que tarda en rebotar. 
+          </p>
+          <p>
+            Si la distancia es menor a 20 cm, el flujo entra en <strong>Modo Alerta</strong>: apaga las luces de marcha, enciende
+            los LEDs rojos, frena los motores y ejecuta la rutina de evasión. Si el camino está despejado, retoma su marcha normal.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Control de Tracción (Driver L298N)</h2>
+      <div class="block">
+        <div class="code-card">
+          <div class="code-head">
+            <strong>Funciones de Movimiento</strong>
+            <span class="badge">Puente H</span>
+          </div>
+<pre><code>void avanzar() {
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+void detenerMotores() {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+}
+
+void girarDerecha() {
+  // Motor izquierdo avanza, derecho retrocede
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+  delay(400); // Tiempo de giro
+  detenerMotores();
+}</code></pre>
+        </div>
+
+        <div class="info-card">
+          <h3>Movimiento Diferencial</h3>
+          <p>
+            Al usar un chasis 2WD, el carrito gira mediante <strong>tracción diferencial</strong>. Para avanzar, ambos motores giran en la misma dirección. 
+            Para detenerse, se corta la energía a todos los pines.
+          </p>
+          <p>
+            Para realizar un giro sobre su propio eje (ej. girar a la derecha), se invierte la polaridad de un motor respecto al otro gracias al Puente H integrado en el L298N.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Flujo de Evitación de Obstáculos</h2>
+      <div class="flow">
+        <div class="card">
+          <div class="step">1</div>
+          <strong>Exploración Constante</strong>
+          <p class="muted">
+            El sensor ultrasónico escanea el entorno frontal. El servo mantiene el sensor apuntando recto a 90 grados.
+          </p>
+        </div>
+        <div class="card">
+          <div class="step">2</div>
+          <strong>Marcha Segura</strong>
+          <p class="muted">
+            Motores activos en avance. Luces indicadoras blancas o azules encendidas mostrando que la ruta está despejada.
+          </p>
+        </div>
+        <div class="card">
+          <div class="step">3</div>
+          <strong>Detección y Freno</strong>
+          <p class="muted">
+            Objeto a menos de 20cm detectado. Los motores se bloquean, luz blanca se apaga y LED rojo parpadea o se mantiene fijo.
+          </p>
+        </div>
+        <div class="card">
+          <div class="step">4</div>
+          <strong>Maniobra Evasiva</strong>
+          <p class="muted">
+            El servo gira a 0° y 180° midiendo distancias laterales. El Arduino compara y gira el chasis hacia la ruta con más espacio.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Estructura del Proyecto Arduino</h2>
+      <div class="block">
+        <div class="code-card">
+          <div class="code-head">
+            <strong>Archivos del sketch</strong>
+            <span class="badge">Estructura</span>
+          </div>
+<pre><code>RobotCarrito_2WD/
+├── RobotCarrito_2WD.ino    # Bucle principal y Setup
+├── Movimiento.ino          # Funciones avanzar(), girar(), detener()
+├── Sensores.ino            # Lógica del HC-SR04 y Servo
+└── Luces.ino               # Control de LEDs (aviso, marcha)
+├── README.md
+└── esquema_conexiones.png</code></pre>
+        </div>
+
+        <div class="info-card">
+          <h3>Ventaja de la Modularidad</h3>
+          <p>
+            Aunque se puede escribir todo en un solo archivo, separar el código en múltiples pestañas (archivos <code>.ino</code>)
+            dentro de la misma carpeta facilita encontrar errores y escalar el proyecto (por ejemplo, añadir control por Bluetooth 
+            más adelante sin ensuciar la lógica de evasión).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      © 2026 · Demo técnico · Robot Carrito Arduino 2WD con Evitación de Obstáculos y Sistema de Luces
+    </footer>
+  </div>
+</body>
+</html>
