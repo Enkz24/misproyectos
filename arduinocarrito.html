@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Robot Carrito Arduino 2WD: Evitación de Obstáculos y Sistema de Luces</title>
+
+  <style>
+    :root {
+      --bg: #020617;
+      --card: #0f172a;
+      --accent: #38bdf8;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(120deg, #020617, #020617);
+      color: var(--text);
+    }
+
+    header {
+      padding: 3rem 1.5rem 2rem;
+      max-width: 1100px;
+      margin: auto;
+      animation: fadeDown 1s ease;
+    }
+
+    header h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      margin-bottom: .5rem;
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: 1.1rem;
+      max-width: 900px;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: auto;
+      padding: 0 1.5rem 4rem;
+    }
+
+    section {
+      margin-top: 3rem;
+      animation: fadeUp 1s ease forwards;
+    }
+
+    h2 {
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    .card {
+      background: linear-gradient(180deg, var(--card), #020617);
+      border-radius: 1.5rem;
+      padding: 1.8rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,.4);
+    }
+
+    .card p, .card li {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    ul { padding-left: 1.2rem; }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .img-card {
+      background: #020617;
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 15px 30px rgba(0,0,0,.4);
+      transform: translateY(20px);
+      opacity: 0;
+      animation: fadeUp .8s ease forwards;
+    }
+
+    .img-card img {
+      width: 100%;
+      display: block;
+    }
+
+    .img-card span {
+      display: block;
+      padding: .8rem 1rem;
+      font-size: .9rem;
+      color: var(--muted);
+      background: #020617;
+    }
+
+    .links {
+      margin-top: 2rem;
+      display: flex;
+      gap: 1rem;
+    }
+
+    .links a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    @keyframes fadeUp {
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes fadeDown {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Robot Carrito Arduino 2WD: Evitación de Obstáculos y Sistema de Luces</h1>
+  <p>
+    Proyecto de robótica educativa para la construcción y programación de un carrito autónomo
+    de dos motores (2WD). Cuenta con un sensor ultrasónico para evitar obstáculos y un sistema de
+    iluminación LED inteligente que indica el movimiento y las alertas.
+  </p>
+</header>
+
+<main>
+
+  <section>
+    <h2>Descripción del Proyecto</h2>
+    <div class="card">
+      <p>
+        Este proyecto tiene como objetivo desarrollar un robot móvil autónomo basado en la plataforma
+        Arduino Nano. El carrito, construido sobre un chasis acrílico de dos motores (2WD), utiliza un
+        sensor ultrasónico frontal (que se asemeja a dos ojos amarillos) para medir la distancia a los objetos.
+      </p>
+      <p>
+        Cuando el carrito avanza sin detectar obstáculos, enciende luces LED (por ejemplo, blancas o azules) para
+        indicar su movimiento. Si el sensor ultrasónico detecta un objeto a una distancia crítica, el carrito se
+        detiene, activa luces de alerta rojas y realiza una maniobra (usualmente un giro o una reversa) para evitar el
+        obstáculo, todo controlado por un micro servo que orienta el sensor.
+      </p>
+      <p>
+        El cerebro del sistema es un Arduino Nano montado sobre un chasis con un controlador de motores (driver) y una
+        placa de circuito, como se observa en la foto de referencia.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2>⚙️ Flujo de Funcionamiento</h2>
+    <div class="card">
+      <ul>
+        <li>Encendido y arranque del sistema.</li>
+        <li>El carrito inicia su movimiento hacia adelante.</li>
+        <li>Encendido de luces LED indicativas de movimiento (blancas/azules).</li>
+        <li>El sensor ultrasónico escanea constantemente el frente.</li>
+        <li>Si se detecta un obstáculo a corta distancia, el carrito se detiene.</li>
+        <li>Activación de las luces de alerta rojas brillantes.</li>
+        <li>El micro servo gira el sensor ultrasónico para evaluar las rutas a los lados (izquierda/derecha).</li>
+        <li>Giro o maniobra de evasión según la mejor ruta.</li>
+        <li>Vuelta al modo de movimiento hacia adelante y cambio de luces.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Características Destacadas</h2>
+    <div class="card">
+      <ul>
+        <li>Chasis acrílico transparente de dos motores (2WD) para tracción.</li>
+        <li>Rueda loca delantera para facilitar los giros.</li>
+        <li>Sensor ultrasónico HC-SR04 para detección precisa de distancia.</li>
+        <li>Micro servo SG90 para orientación del sensor ultrasónico.</li>
+        <li>Controlador de motores DC.</li>
+        <li>Sistema de luces LED inteligente (Blancas/Azules para avance, Rojas para obstáculos).</li>
+        <li>Alimentación por batería de 9V o Li-Po.</li>
+        <li>Programación compatible con Arduino IDE.</li>
+        <li>Plataforma educativa para aprender electrónica, robótica y programación C++.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Evidencia Visual</h2>
+    <div class="gallery">
+
+      <div class="img-card">
+        <img src="assets/imgs/carrito-ensamblado.png" alt="Kit ensamblado del carrito 2WD">
+        <span>Kit ensamblado del carrito 2WD, con sensor ultrasónico, servo y chasis acrílico.</span>
+      </div>
+
+      <div class="img-card">
+        <img src="assets/imgs/carrito-avanzando-luces.png" alt="Carrito avanzando con luces">
+        <span>Carrito avanzando con luces de marcha blancas activadas (simuladas).</span>
+      </div>
+
+      <div class="img-card">
+        <img src="assets/imgs/carrito-deteccion-obstaculo.png" alt="Detección de obstáculos">
+        <span>Detección de un obstáculo mediante el sensor ultrasónico frontal.</span>
+      </div>
+
+      <div class="img-card">
+        <img src="assets/imgs/carrito-luces-rojas.png" alt="Carrito detenido con luces rojas">
+        <span>Luces de alerta rojas encendidas tras la detección y maniobra de evitación.</span>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>Tecnologías Utilizadas</h2>
+    <div class="card">
+      <ul>
+        <li>Arduino Nano / Uno</li>
+        <li>Chasis acrílico 2WD</li>
+        <li>Motores DC con reductora</li>
+        <li>Driver de motor L298N o compatible</li>
+        <li>Sensor ultrasónico HC-SR04</li>
+        <li>Micro servo SG90</li>
+        <li>LEDs (Blancos, Rojos)</li>
+        <li>Batería y portabaterías</li>
+        <li>Código C++ (Arduino IDE)</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Código</h2>
+    <div class="card">
+      <p>
+        Fragmentos representativos del código Arduino para el control de los motores, la lectura del sensor ultrasónico,
+        la lógica de evitación de obstáculos con el servo, y el control de las luces LED para los diferentes estados de
+        movimiento.
+      </p>
+      <div class="links">
+        <a href="codigo-carrito.html">Ver código y funcionamiento</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  © 2026 – Proyecto de Carrito Arduino 2WD con Evitación y Luces | Portafolio técnico
+</footer>
+
+</body>
+</html>
